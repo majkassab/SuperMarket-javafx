@@ -56,6 +56,7 @@ public class main extends Application
     PasswordField passwordInput;
     Button onButton;
     Button offButton;
+    Button showButton;
     Button insertButton;
     Button updateButton;
     Button deleteButton;
@@ -73,6 +74,7 @@ public class main extends Application
     DatePicker birthdaySignUpInput;
     TextField salarySignUpInput;
     ComboBox<String> roleSignUpInput;
+    Label WelcomeNameApp;
     LocalDate today = LocalDate.now();
     
     @Override
@@ -93,6 +95,8 @@ public class main extends Application
             {
                 window.setScene(appScene);
             } else {
+                passwordInput.setText("");
+                UserNameInput.setText("");
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Invalid Credentials");
                 alert.setHeaderText(null);
@@ -133,16 +137,20 @@ public class main extends Application
         // App scene -----------------------------------------------------------
 
         //Top Area      --------------------------------
-        Label CompanyName = new Label("MiniTroy Supermarket");
-        CompanyName.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        WelcomeNameApp = new Label("");
+        //WelcomeNameApp.setText("Welcome "+UserNameInput+".");
+        WelcomeNameApp.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         HBox TopArea = new HBox();
-        TopArea.getChildren().addAll(CompanyName );
+        TopArea.getChildren().addAll(WelcomeNameApp );
         TopArea.setAlignment(Pos.CENTER);
         TopArea.setSpacing(20);
         TopArea.setPadding(new Insets(10));
         TopArea.setStyle("-fx-background-color: #FADBD8; -fx-border-width: 0 0 5 0; -fx-border-color: #C0392B;");
         
         //Right Area    --------------------------------
+        showButton = new Button("Show Product");
+        showButton.setOnAction(event -> ShowMethod());
+        
         insertButton = new Button("Insert Product");
         //insertButton.setDisable(true);
         insertButton.setOnAction(event -> InsertMethod());
@@ -159,7 +167,7 @@ public class main extends Application
         //offButton.setDisable(true);
         offButton.setOnAction(event -> SignOutMethod());
         
-        VBox RightArea = new VBox(insertButton, updateButton, deleteButton, offButton );
+        VBox RightArea = new VBox(showButton, insertButton, updateButton, deleteButton, offButton );
         RightArea.setAlignment(Pos.CENTER);
         RightArea.setSpacing(20);
         RightArea.setPadding(new Insets(10));
@@ -173,7 +181,7 @@ public class main extends Application
         //Status
         Label StatusLabel = new Label("Status: ");
         StatusLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        StatusMessage = new Label("System is OFF");
+        StatusMessage = new Label("Welcome");
         StatusMessage.setFont(Font.font(16));
         
         // Create a label to display the date and time
@@ -265,6 +273,13 @@ public class main extends Application
                 alert.setContentText("Successfully registered user!");
                 alert.showAndWait();
                 window.setScene(loginScene);
+                UserNameSignUpInput.setText("");
+                passwordSignUpInput.setText("");
+                nameSignUpInput.setText("");
+                familySignUpInput.setText("");
+                birthdaySignUpInput.setValue(LocalDate.now());
+                salarySignUpInput.setText("");
+                roleSignUpInput.setPromptText("Select an item");
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Registration Status");
@@ -278,6 +293,13 @@ public class main extends Application
         goBackToLoginButton.setOnAction(e -> 
         {   
             window.setScene(loginScene);
+            UserNameSignUpInput.setText("");
+            passwordSignUpInput.setText("");
+            nameSignUpInput.setText("");
+            familySignUpInput.setText("");
+            birthdaySignUpInput.setValue(LocalDate.now());
+            salarySignUpInput.setText("");
+            roleSignUpInput.setPromptText("Select an item");
             
         });
         
@@ -343,7 +365,8 @@ public class main extends Application
                 ResultSet results = stmt.executeQuery(SQLquery);
                 if(results.next())
                 {
-                    AccountName = results.getString(1);
+                    this.AccountName = results.getString(1);
+                    WelcomeNameApp.setText("Welcome "+AccountName);
                     System.out.println("Debug:  (isValidCredentials) AccountName is "+AccountName);
                     System.out.println("Debug:  (isValidCredentials) Username and password is correct");
                     stmt.close();
@@ -400,7 +423,81 @@ public class main extends Application
         window.setScene(loginScene);
         
     }
+    
+    private void ShowMethod() 
+    {
+        CenterArea.getChildren().clear();
+        
+        GridPane InsertWindows = new GridPane();
+        Label PName = new Label("Product Name:");
+        TextField InPName = new TextField();
+        
+        Label PBarCode = new Label("Barcode:");
+        TextField InPBarCode = new TextField();
+        
+        Label PFloorPrice = new Label("Floor Price:");
+        TextField InPFloorPrice = new TextField();
+        
+        Label PExpiredDate = new Label("Selling Price:");
+        TextField InPExpiredDate = new TextField();
+        
+        Label PSellingPrice = new Label("Expired Date:");
+        TextField InPSellingPrice = new TextField();
+        
+        Label PDescription = new Label("Description:");
+        TextField InPDescription = new TextField();
+        
+        Button submit = new Button("Submit");
+        
+        InsertWindows.add(PName, 0, 0);
+        InsertWindows.add(InPName, 1, 0);
 
+        InsertWindows.add(PBarCode, 0, 1);
+        InsertWindows.add(InPBarCode, 1, 1);
+
+        InsertWindows.add(PFloorPrice, 0, 2);
+        InsertWindows.add(InPFloorPrice, 1, 2);
+
+        InsertWindows.add(PSellingPrice, 0, 4);
+        InsertWindows.add(InPSellingPrice, 1, 4);
+        
+        InsertWindows.add(PExpiredDate, 0, 3);
+        InsertWindows.add(InPExpiredDate, 1, 3);
+
+        InsertWindows.add(PDescription, 0, 5);
+        InsertWindows.add(InPDescription, 1, 5);
+        
+        InsertWindows.add(submit, 1, 6);
+        submit.setOnAction(event->
+        {
+            System.out.println("Debug:"+InPName.getText()+","+InPBarCode.getText()+","+InPFloorPrice.getText()+","+InPSellingPrice.getText()+","+InPExpiredDate.getText()+","+InPDescription.getText());
+            try
+            {
+                //prepare a statement
+                stmt = conn.createStatement();
+                stmt.executeUpdate("INSERT INTO `products` VALUES ('"+InPName.getText()+"','"+InPBarCode.getText()+"','"+InPFloorPrice.getText()+"','"+InPExpiredDate.getText()+"','"+InPSellingPrice.getText()+"','"+InPDescription.getText()+"')");
+                //stmt.executeUpdate("INSERT INTO `products`(`product_name`, `barcode`, `floor_price`, `selling_price`, `expired_date`, `description`) VALUES ('"+InPName.getText()+"','"+InPBarCode.getText()+"','"+InPFloorPrice.getText()+"','"+InPSellingPrice.getText()+"','"+InPExpiredDate.getText()+"','"+InPDescription.getText()+"')");
+                StatusMessage.setText("Insert Done");
+                stmt.close();
+                InPName.setText("");
+                InPBarCode.setText("");
+                InPFloorPrice.setText("");
+                InPExpiredDate.setText("");
+                InPSellingPrice.setText("");
+                InPDescription.setText("");
+            }
+            catch(SQLException e)
+            {
+                System.out.println("Debug Error: "+e.toString());
+                StatusMessage.setText("Error #4");
+            }
+            
+        });
+        
+        
+        CenterArea.getChildren().add(InsertWindows);
+    }
+    
     private void InsertMethod() 
     {
         CenterArea.getChildren().clear();
@@ -456,6 +553,12 @@ public class main extends Application
                 //stmt.executeUpdate("INSERT INTO `products`(`product_name`, `barcode`, `floor_price`, `selling_price`, `expired_date`, `description`) VALUES ('"+InPName.getText()+"','"+InPBarCode.getText()+"','"+InPFloorPrice.getText()+"','"+InPSellingPrice.getText()+"','"+InPExpiredDate.getText()+"','"+InPDescription.getText()+"')");
                 StatusMessage.setText("Insert Done");
                 stmt.close();
+                InPName.setText("");
+                InPBarCode.setText("");
+                InPFloorPrice.setText("");
+                InPExpiredDate.setText("");
+                InPSellingPrice.setText("");
+                InPDescription.setText("");
             }
             catch(SQLException e)
             {
@@ -483,31 +586,31 @@ public class main extends Application
         Label PFloorPrice = new Label("Floor Price:");
         TextField InPFloorPrice = new TextField();
         
-        Label PExpiredDate = new Label("Selling Price:");
-        TextField InPExpiredDate = new TextField();
-        
-        Label PSellingPrice = new Label("Expired Date:");
+        Label PSellingPrice = new Label("Selling Price:");
         TextField InPSellingPrice = new TextField();
+        
+        Label PExpiredDate = new Label("Expired Date:");
+        TextField InPExpiredDate = new TextField();
         
         Label PDescription = new Label("Description:");
         TextField InPDescription = new TextField();
         
         Button submit = new Button("Submit");
-        
-        InsertWindows.add(PName, 0, 0);
-        InsertWindows.add(InPName, 1, 0);
 
-        InsertWindows.add(PBarCode, 0, 1);
-        InsertWindows.add(InPBarCode, 1, 1);
+        InsertWindows.add(PBarCode, 0, 0);
+        InsertWindows.add(InPBarCode, 1, 0);
+        
+        InsertWindows.add(PName, 0, 1);
+        InsertWindows.add(InPName, 1, 1);
 
         InsertWindows.add(PFloorPrice, 0, 2);
         InsertWindows.add(InPFloorPrice, 1, 2);
 
-        InsertWindows.add(PSellingPrice, 0, 4);
-        InsertWindows.add(InPSellingPrice, 1, 4);
+        InsertWindows.add(PSellingPrice, 0, 3);
+        InsertWindows.add(InPSellingPrice, 1, 3);
         
-        InsertWindows.add(PExpiredDate, 0, 3);
-        InsertWindows.add(InPExpiredDate, 1, 3);
+        InsertWindows.add(PExpiredDate, 0, 4);
+        InsertWindows.add(InPExpiredDate, 1, 4);
 
         InsertWindows.add(PDescription, 0, 5);
         InsertWindows.add(InPDescription, 1, 5);
@@ -515,14 +618,22 @@ public class main extends Application
         InsertWindows.add(submit, 1, 6);
         submit.setOnAction(event->
         {
-            System.out.println("Debug:"+InPName.getText()+","+InPBarCode.getText()+","+InPFloorPrice.getText()+","+InPSellingPrice.getText()+","+InPExpiredDate.getText()+","+InPDescription.getText());
             try
             {
                 //prepare a statement
                 stmt = conn.createStatement();
-                stmt.executeUpdate("UPDATE `products` SET `product_name`='"+InPName.getText()+"',`floor_price`='"+InPFloorPrice.getText()+"',`selling_price`='"+InPSellingPrice.getText()+"',`expired_date`='"+InPExpiredDate.getText()+"',`description`='"+InPDescription.getText()+"'' WHERE `barcode`='"+InPBarCode.getText()+"'");
+                String SQLquery = "UPDATE `products` SET `product_name`='"+InPName.getText()+"',`floor_price`="+InPFloorPrice.getText()+",`selling_price`="+InPSellingPrice.getText()+",`expired_date`='"+InPExpiredDate.getText()+"',`description`='"+InPDescription.getText()+"' WHERE `barcode`="+InPBarCode.getText();
+                //String SQLquery = "UPDATE `products` SET `product_name`='"+InPName.getText()+"',`floor_price`="+InPFloorPrice.getText()+",`selling_price`="+InPExpiredDate.getText()+",`expired_date`='"+InPSellingPrice.getText()+"',`description`='"+InPDescription.getText()+"' WHERE `barcode`="+InPBarCode.getText();
+                System.out.println("Debug: (UpdateMethod) "+SQLquery);
+                stmt.executeUpdate(SQLquery);
                 StatusMessage.setText("Updated Done");
                 stmt.close();
+                InPName.setText("");
+                InPBarCode.setText("");
+                InPFloorPrice.setText("");
+                InPExpiredDate.setText("");
+                InPSellingPrice.setText("");
+                InPDescription.setText("");   
             }
             catch(SQLException e)
             {
